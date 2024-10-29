@@ -1,0 +1,10 @@
+__pycache__
+adapter_config.json
+adapter_model.safetensors
+wandb
+bin
+saves
+soft_prompts
+visuals
+results*
+.ipynb_checkpoints*
