@@ -2,7 +2,7 @@ version: '3.4'
 services:
   gradio:
     build:
-      - context: gradio
+      context: gradio
     restart: unless-stopped
     ports:
       - 7860:7860
