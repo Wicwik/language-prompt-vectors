@@ -8,4 +8,4 @@ ENV GRADIO_SERVER_NAME="0.0.0.0"
 
 RUN ls -lad
 
-CMD ["python", "gradio/app.py"]
+CMD ["python", "app.py"]
