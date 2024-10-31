@@ -22,6 +22,10 @@ demo = gr.Interface(
         ),
     ],
     outputs=[gr.Textbox(label="Output")],
+    examples=[
+        "Vytvorte tabuľku SQL s nasledujúcimi stĺpcami: _id, name, phone, email.",
+        ["SlovakAlpaca"],
+    ],
 )
 
 if __name__ == "__main__":
