@@ -23,8 +23,14 @@ demo = gr.Interface(
     ],
     outputs=[gr.Textbox(label="Output")],
     examples=[
-        "Vytvorte tabuľku SQL s nasledujúcimi stĺpcami: _id, name, phone, email.",
-        ["SlovakAlpaca"],
+        [
+            "Vytvorte tabuľku SQL s nasledujúcimi stĺpcami: _id, name, phone, email.",
+            ["SlovakAlpaca"],
+        ],
+        [
+            "Vysvetlite rozdiel medzi hustotou obyvateľstva a rastom obyvateľstva.",
+            ["SlovakAlpaca"],
+        ],
     ],
 )
 
