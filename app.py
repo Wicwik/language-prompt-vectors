@@ -1,17 +1,37 @@
-import argparse
-import os
 import torch
-import wandb
 
 
 from args import DataTrainingArguments, ArgumentParser, PromptVectorConfig
 
 from datetime import datetime
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from peft import get_peft_model
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, Pipeline
+from peft import get_peft_model, PeftModel
 from trl import SFTConfig, ModelConfig
 
+from typing import List
+
 from fastapi import FastAPI
+
+from utils import load_prompt, load_prompt_vector
+
+from pydantic import BaseModel
+
+
+class Params(BaseModel):
+    input_str: str
+    soft_prompts: List[str] = []
+
+
+SOFT_PROMPT_PATHS = {
+    "SlovakAlpaca": {
+        "soft_prompt": "soft_prompts/origin_0_meta-llama-3.1-8b-instruct/slovak_alpaca.safetensors",
+        "init_prompt": "soft_prompts/origin_0_meta-llama-3.1-8b-instruct/origin_0_meta-llama-3.1-8b-instruct.bin",
+    },
+    "SST2": {
+        "soft_prompt": "soft_prompts/origin_0_meta-llama-3.1-8b-instruct/sst2.bin",
+        "init_prompt": "soft_prompts/origin_0_meta-llama-3.1-8b-instruct/origin_0_meta-llama-3.1-8b-instruct.bin",
+    },
+}
 
 
 class LLMWrapper:
@@ -41,21 +61,55 @@ class LLMWrapper:
         self.model.config.pad_token_id = self.tokenizer.pad_token_id
         self.model.generation_config.pad_token_id = self.tokenizer.pad_token_id
 
-        self.pipeine = pipeline(
+        self.pipeline = self._create_pipeline(self.model)
+
+    def _create_pipeline(self, model) -> Pipeline:
+        return pipeline(
             task="text-generation",
-            model=self.model,
+            model=model,
             tokenizer=self.tokenizer,
-            max_new_tokens=256,
+            max_new_tokens=1024,
             do_sample=False,
             top_p=None,
             temperature=None,
+            use_cache=False,
             device=self.device,
         )
 
-    def generate(self, input_str):
+    def _set_soft_prompt(self, soft_prompts: List[str]):
+        print(soft_prompts)
+
+        if soft_prompts == [] and isinstance(self.pipeline.model, PeftModel):
+            print("is PEFT MODEL")
+            self.pipeline = self._create_pipeline(self.model.base_model)
+
+        elif soft_prompts != []:
+            prompt_vectors = []
+
+            for soft_prompt_name in soft_prompts:
+                prompt_vectors.append(
+                    load_prompt_vector(
+                        soft_prompt_name,
+                        SOFT_PROMPT_PATHS[soft_prompt_name]["soft_prompt"],
+                        SOFT_PROMPT_PATHS[soft_prompt_name]["init_prompt"],
+                    )
+                )
+
+            self.model.prompt_encoder.default.embedding.weight = sum(
+                prompt_vectors
+            ).apply(
+                load_prompt(SOFT_PROMPT_PATHS[soft_prompts[0]]["init_prompt"]).to(
+                    self.device
+                )
+            )
+
+            self.pipeline = self._create_pipeline(self.model)
+
+    def generate(self, input_str, soft_prompts):
         preprocessed_input = self._preprocess_input(input_str)
 
-        result = self.pipeine(preprocessed_input)
+        self._set_soft_prompt(soft_prompts)
+        result = self.pipeline(preprocessed_input)
 
         answer = (
             result[0]["generated_text"]
@@ -91,6 +145,6 @@ async def root():
     return {"message": "Robo's LLM FastAPI!"}
 
 
-@app.get("/generate/{input_str}")
-async def generate(input_str: str):
-    return {"message": llm.generate(input_str)}
+@app.post("/generate")
+async def generate(params: Params):
+    return {"message": llm.generate(params.input_str, params.soft_prompts)}

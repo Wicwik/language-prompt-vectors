@@ -1,1 +1,1 @@
-from .utils import load_prompt
+from .utils import load_prompt, load_prompt_vector

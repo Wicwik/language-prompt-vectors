@@ -26,13 +26,18 @@ def load_from_safetensor(path: str) -> torch.Tensor:
 
 
 def load_from_binary(path: str) -> torch.Tensor:
-    return torch.load(path)["prompt_embeddings"]
+    t = torch.load(path)
+
+    if isinstance(t, dict):
+        return t["prompt_embeddings"]
+
+    return t
 
 
-def load_prompt_vector(save_path: str, init_path: str):
+def load_prompt_vector(soft_prompt_name, save_path: str, init_path: str):
     task_prompt = load_prompt(save_path)
     init_prompt = load_prompt(init_path)
 
-    prompt_vector = PromptVector(task_prompt, init_prompt)
+    prompt_vector = PromptVector(soft_prompt_name, task_prompt, init_prompt)
 
     return prompt_vector

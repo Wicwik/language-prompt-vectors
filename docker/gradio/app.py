@@ -1,14 +1,26 @@
 import gradio as gr
+import requests
 
 
 def generate(input_str, init_prompts):
+    requests.post(
+        "http://10.0.0.10/generate",
+        json={"input_str": input_str, "soft_prompts": init_prompts},
+    )
+
     return f"{input_str}, {init_prompts}"
 
 
 demo = gr.Interface(
     fn=generate,
-    inputs=["text", 
-            gr.CheckboxGroup(["SST2", "SlovakAlpaca"], label="Soft Prompt", info="How to set the soft prompt?"),],
+    inputs=[
+        "text",
+        gr.CheckboxGroup(
+            ["SlovakAlpaca", "SST2"],
+            label="Soft Prompt",
+            info="How to set the soft prompt?",
+        ),
+    ],
     outputs=["text"],
 )
 
