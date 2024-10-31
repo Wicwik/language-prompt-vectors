@@ -3,6 +3,7 @@ from metrics.utils import check_data_state, binary_reverse
 
 import numpy as np
 
+
 def exact_match(preds, targets):
     check_data_state(preds, targets)
 

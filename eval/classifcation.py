@@ -7,6 +7,7 @@ from sklearn.metrics import accuracy_score, f1_score
 
 from metrics.utils import binary_reverse
 
+
 def predict(test_dataset, model, tokenizer, labels_list):
     y_pred = []
     pipe = pipeline(

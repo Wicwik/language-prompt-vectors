@@ -233,6 +233,7 @@ class SST2(AbstractTask):
             instruct=True,
         )
 
+
 class YelpPolarity(AbstractTask):
     name = "yelp_polarity"
     labels_list = ["negative", "positive"]
@@ -258,6 +259,7 @@ class YelpPolarity(AbstractTask):
             add_prefix,
             instruct=True,
         )
+
 
 # Natural language inference
 class QNLI(AbstractTask):
@@ -325,6 +327,7 @@ class MNLI(AbstractTask):
             instruct=True,
         )
 
+
 # Multi task question classification
 class TREC(AbstractTask):
     name = "trec"
@@ -366,6 +369,7 @@ class TREC(AbstractTask):
             add_prefix,
             instruct=True,
         )
+
 
 class DBPEDIA(AbstractTask):
     name = "dbpedia"
@@ -424,7 +428,7 @@ class DBPEDIA(AbstractTask):
             add_prefix,
             instruct=True,
         )
-    
+
 
 class SlovakAlpaca(AbstractTask):
     name = "slovak_alpaca"
@@ -442,14 +446,14 @@ class SlovakAlpaca(AbstractTask):
         instruction_input = example["input"]
 
         input_texts = [
-            example['instruction'],
+            example["instruction"],
             instruction_input,
         ]
 
         if instruction_input == "nan":
-            input_texts = [example['instruction']]
+            input_texts = [example["instruction"]]
 
-        label_texts = [example['output']]
+        label_texts = [example["output"]]
 
         return self.formater(
             self.name,
@@ -457,6 +461,7 @@ class SlovakAlpaca(AbstractTask):
             label_texts,
             add_prefix,
             instruct=True,
+            generation=True,
         )
 
 
@@ -469,7 +474,6 @@ TASK_MAPPING = OrderedDict(
         ("trec", TREC),
         ("dbpedia", DBPEDIA),
         ("slovak_alpaca", SlovakAlpaca),
-
     ]
 )
 
