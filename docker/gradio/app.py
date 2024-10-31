@@ -14,14 +14,14 @@ def generate(input_str, init_prompts):
 demo = gr.Interface(
     fn=generate,
     inputs=[
-        "text",
+        gr.Textbox(label="Input"),
         gr.CheckboxGroup(
             ["SlovakAlpaca", "SST2"],
-            label="Soft Prompt",
-            info="How to set the soft prompt?",
+            label="Init prompt",
+            info="How to set the soft prompt? (choosing multiple is sum of TPV)",
         ),
     ],
-    outputs=["text"],
+    outputs=[gr.Textbox(label="Output")],
 )
 
 if __name__ == "__main__":
