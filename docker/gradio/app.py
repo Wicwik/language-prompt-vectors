@@ -3,12 +3,12 @@ import requests
 
 
 def generate(input_str, init_prompts):
-    requests.post(
+    r = requests.post(
         "http://10.0.0.10/generate",
         json={"input_str": input_str, "soft_prompts": init_prompts},
     )
 
-    return f"{input_str}, {init_prompts}"
+    return f"{r.text}"
 
 
 demo = gr.Interface(
